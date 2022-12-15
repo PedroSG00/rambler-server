@@ -10,6 +10,7 @@ const getChatDetails = (req, res, next) => {
                 path: 'author'
             }
         })
+        .populate('users')
         .then(chat => res.json(chat))
         .catch(err => next(err))
 }
@@ -27,8 +28,9 @@ const sendMessage = (req, res, next) => {
             path: 'messages',
             populate: {
                 path: 'author'
-            }
+            },
         })
+        .populate('users')
         .then((data) => {
             console.log(data)
             res.json(data)

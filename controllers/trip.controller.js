@@ -117,11 +117,6 @@ const joinTrip = async (req, res, next) => {
     }
 
 
-
-    // .then(trip => trip.chat.updateOne({ $addToSet: { users: passenger } }))
-    // .then(result => res.status(200).json(result))
-    // .catch(err => next(err))
-
 }
 
 const leaveTrip = async (req, res, next) => {
@@ -149,20 +144,26 @@ const editTrip = (req, res, next) => {
 
     const { id } = req.params
 
+
     Trip
         .findByIdAndUpdate(id, req.body, { new: true })
         .then(data => res.status(200).json(data))
         .catch(err => next(err))
 }
 
-const deleteTrip = (req, res, next) => {
+const deleteTrip = async (req, res, next) => {
 
     const { id } = req.params
 
-    Trip
-        .findByIdAndDelete(id)
-        .then(data => res.status(200).json(data))
-        .catch(err => next(err))
+    try {
+        const deletedTrip = await Trip.findByIdAndDelete(id)
+        const deletedChat = await Chat.findByIdAndDelete(deleteTrip.chat._id)
+
+        return res.status(200).json(deleteTrip)
+
+    } catch (error) {
+        next()
+    }
 
 }
 
