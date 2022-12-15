@@ -29,6 +29,11 @@ const tripDetails = (req, res, next) => {
     Trip
         .findById(id)
         .populate("owner car passengers")
+        .populate({
+            path: 'requests', populate: {
+                path: 'owner'
+            }
+        })
         .then(trip => {
             res.json(trip)
         })
@@ -37,24 +42,14 @@ const tripDetails = (req, res, next) => {
 
 const requestWaypoint = async (req, res, next) => {
 
-    const { id } = req.params
-    const { waypoint, waypoint_address } = req.body
+    const { tripID } = req.params
     const { _id: owner } = req.payload
-    const { lng: waypoint_lng, lat: waypoint_lat } = waypoint
+    const { location, waypoint_address } = req.body
+    const { lat, lng } = location
 
-    try {
-        Trip.findByIdAndUpdate(id, {
-            $addToSet: {
-                requests: {
-                    owner: owner,
-                    type: 'Point',
-                    coordinates: [waypoint_lng, waypoint_lat]
-                }
-            }
-        })
-    } catch (error) {
-        next(error)
-    }
+    Trip.findByIdAndUpdate(tripID, { $addToSet: { requests: { owner, location: { type: 'Point', coordinates: [lng, lat] }, waypoint_address } } })
+        .then(request => res.json(request))
+        .catch(err => next(err))
 
 }
 

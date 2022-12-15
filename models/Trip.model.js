@@ -59,10 +59,13 @@ const tripSchema = new Schema(
 
         requests: [{
             owner: { type: Types.ObjectId, ref: "User" },
-            type: {
-                type: String
+            location: {
+                type: {
+                    type: String
+                },
+                coordinates: [Number]
             },
-            coordinates: [Number]
+            waypoint_address: { type: String }
         }],
 
         car: {
