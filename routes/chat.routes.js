@@ -5,6 +5,6 @@ const { getChatDetails, sendMessage } = require('../controllers/chat.controller'
 
 router.get('/:chat_id', isAuthenticated, getChatDetails)
 
-router.put('/send', isAuthenticated, sendMessage)
+router.put('/:chat_id/send', isAuthenticated, sendMessage)
 
 module.exports = router

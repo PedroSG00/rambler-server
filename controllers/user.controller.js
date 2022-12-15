@@ -33,9 +33,17 @@ const userChats = (req, res, next) => {
             path: 'chats',
             populate: {
                 path: 'trip',
-                model: 'Trip'
+                model: 'Trip',
             }
         })
+        .populate({
+            path: 'chats',
+            populate: {
+                path: 'users',
+                model: 'User',
+            }
+        })
+
         .then(chats => res.status(200).json(chats))
         .catch(error => next(error))
 
