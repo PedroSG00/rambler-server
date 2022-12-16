@@ -25,13 +25,14 @@ const myTrips = (req, res, next) => {
 const tripDetails = (req, res, next) => {
 
     const { id } = req.params
-
     Trip
         .findById(id)
         .populate("owner car passengers")
         .populate({
-            path: 'requests', populate: {
-                path: 'owner'
+            path: 'requests',
+            populate: {
+                path: 'owner',
+                model: User
             }
         })
         .then(trip => {
@@ -51,6 +52,19 @@ const requestWaypoint = async (req, res, next) => {
         .then(request => res.json(request))
         .catch(err => next(err))
 
+}
+
+const acceptRequest = async (req, res, next) => {
+    const { tripID } = req.params
+    console.log(req.body)
+    const { location, waypoint_address, owner } = req.body
+    const { coordinates } = location
+
+    const addedToWaypoint = await Trip.findByIdAndUpdate(tripID, { $addToSet: { waypoints: { type: 'Point', coordinates: [coordinates[0], coordinates[1]] } } })
+    const removeRequest = await Trip.findByIdAndUpdate(tripID, { $pull: { requests: { owner, waypoint_address: waypoint_address } } })
+
+
+    return res.json(removeRequest)
 }
 
 const createTrips = async (req, res, next) => {
@@ -244,7 +258,8 @@ module.exports = {
     editTrip,
     deleteTrip,
     searchTrip,
-    requestWaypoint
+    requestWaypoint,
+    acceptRequest
 }
 
 
