@@ -39,7 +39,21 @@ const sendMessage = (req, res, next) => {
 
 }
 
+const deleteMessage = (req, res, next) => {
+    const { message_id } = req.body
+    const { chat_id } = req.params
+
+    console.log('author---------------------', text)
+
+    Chat
+        .findByIdAndUpdate(chat_id, { $pull: { messages: message_id } }, { new: true })
+        .then(deletedMessage => res.json(deletedMessage))
+        .catch(err => next(err))
+
+}
+
 module.exports = {
     getChatDetails,
-    sendMessage
+    sendMessage,
+    deleteMessage
 }
