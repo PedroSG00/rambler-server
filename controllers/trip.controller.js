@@ -90,7 +90,9 @@ const createTrips = async (req, res, next) => {
 
         const createdChat = await Chat.create({ driver: owner, trip: createdTrip._id })
 
+
         const updateTripWithChat = await createdTrip.updateOne({ chat: createdChat._id })
+        const userUpdated = await User.findByIdAndUpdate(owner, { $addToSet: { chats: createdChat._id } })
 
         return res.json(updateTripWithChat)
     } catch (error) {
@@ -154,10 +156,14 @@ const editTrip = (req, res, next) => {
 const deleteTrip = async (req, res, next) => {
 
     const { id } = req.params
+    const { _id: user_id } = req.payload
 
     try {
         const deletedTrip = await Trip.findByIdAndDelete(id)
         const deletedChat = await Chat.findByIdAndDelete(deleteTrip.chat._id)
+        const userUpdated = await User.findByIdAndUpdate(user_id, { $pull: { chats: deleteTrip.chat._id } })
+
+
 
         return res.status(200).json(deleteTrip)
 
