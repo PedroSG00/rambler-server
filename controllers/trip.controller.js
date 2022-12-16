@@ -43,24 +43,27 @@ const tripDetails = (req, res, next) => {
 
 const requestWaypoint = async (req, res, next) => {
 
-    const { id } = req.params
-    const { waypoint, waypoint_address } = req.body
+    const { tripID } = req.params
+    const { location, waypoint_address } = req.body
     const { _id: owner } = req.payload
-    const { lng: waypoint_lng, lat: waypoint_lat } = waypoint
+    const { lng: location_lng, lat: location_lat } = location
 
-    try {
-        Trip.findByIdAndUpdate(id, {
-            $addToSet: {
-                requests: {
-                    owner: owner,
+    const waypointRequested = await Trip.findByIdAndUpdate(tripID, {
+        $addToSet: {
+            requests: {
+                owner: owner,
+                location: {
                     type: 'Point',
-                    coordinates: [waypoint_lng, waypoint_lat]
-                }
+                    coordinates: [location_lng, location_lat],
+                },
+                waypoint_address
             }
-        })
-    } catch (error) {
-        next(error)
-    }
+        }
+    }, { new: true })
+
+    return res.json(waypointRequested)
+
+
 
 }
 
@@ -70,7 +73,18 @@ const acceptRequest = async (req, res, next) => {
     const { location, waypoint_address, owner } = req.body
     const { coordinates } = location
 
-    const addedToWaypoint = await Trip.findByIdAndUpdate(tripID, { $addToSet: { waypoints: { type: 'Point', coordinates: [coordinates[0], coordinates[1]] } } })
+    const addedToWaypoint = await Trip.findByIdAndUpdate(tripID, { $addToSet: { waypoints: { type: 'Point', coordinates: [coordinates[0], coordinates[1]] }, passengers: owner._id } })
+    const removeRequest = await Trip.findByIdAndUpdate(tripID, { $pull: { requests: { owner, waypoint_address: waypoint_address } } })
+
+
+    return res.json(removeRequest)
+}
+
+const declineRequest = async (req, res, next) => {
+    const { tripID } = req.params
+    console.log(req.body)
+    const { location, waypoint_address, owner } = req.body
+
     const removeRequest = await Trip.findByIdAndUpdate(tripID, { $pull: { requests: { owner, waypoint_address: waypoint_address } } })
 
 
@@ -274,7 +288,8 @@ module.exports = {
     deleteTrip,
     searchTrip,
     requestWaypoint,
-    acceptRequest
+    acceptRequest,
+    declineRequest
 }
 
 
