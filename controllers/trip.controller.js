@@ -246,11 +246,10 @@ const searchTrip = (req, res, next) => {
 
 const updateTripState = (req, res, next) => {
     const { trip_state } = req.body
-    const { id } = req.params
-
+    const { tripID } = req.params
 
     Trip
-        .findByIdAndUpdate(id, { trip_state }, { new: true })
+        .findByIdAndUpdate(tripID, { trip_state }, { new: true })
         .then(data => res.status(200).json(data))
         .catch(err => next(err))
 }
