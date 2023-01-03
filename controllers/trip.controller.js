@@ -17,7 +17,7 @@ const myTrips = (req, res, next) => {
     Trip
         .find({ owner: req.payload._id })
         .populate('owner passengers')
-        .select({ origin_address: 1, destination_address: 1, price: 1, date: 1, stops: 1, owner: 1, seats: 1, passengers: 1 })
+        .select({ origin_address: 1, destination_address: 1, price: 1, date: 1, stops: 1, owner: 1, seats: 1, passengers: 1, trip_state: 1 })
         .then(ownTripList => res.json(ownTripList))
         .catch(err => next(err))
 }
@@ -79,7 +79,7 @@ const acceptRequest = async (req, res, next) => {
 
 const createTrips = async (req, res, next) => {
 
-    const { from, to, origin_address, destination_address, date, seats, car, price, hour } = req.body
+    const { from, to, origin_address, destination_address, date, seats, car, price, hour, trip_state } = req.body
     const { _id: owner } = req.payload
 
     const { lng: origin_lng, lat: origin_lat } = from
@@ -104,7 +104,8 @@ const createTrips = async (req, res, next) => {
                 owner,
                 seats,
                 car,
-                hour
+                hour,
+                trip_state
             })
 
         const createdChat = await Chat.create({ driver: owner, trip: createdTrip._id })
@@ -262,6 +263,16 @@ const searchTrip = (req, res, next) => {
         .catch(err => next(err))
 }
 
+const updateTripState = (req, res, next) => {
+    const { trip_state } = req.body
+    const { tripID } = req.params
+
+    Trip
+        .findByIdAndUpdate(tripID, { trip_state }, { new: true })
+        .then(data => res.status(200).json(data))
+        .catch(err => next(err))
+}
+
 
 module.exports = {
     tripList,
@@ -274,7 +285,8 @@ module.exports = {
     deleteTrip,
     searchTrip,
     requestWaypoint,
-    acceptRequest
+    acceptRequest,
+    updateTripState
 }
 
 
