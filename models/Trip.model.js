@@ -81,10 +81,13 @@ const tripSchema = new Schema(
         chat: {
             type: Types.ObjectId,
             ref: 'Chat'
-        }
+        },
 
-
-
+        trip_state: {
+            type: String,
+            enum: ['OPEN', 'COMPLETED'],
+            default: 'OPEN'
+        },
     },
     {
         timestamps: true
@@ -96,15 +99,3 @@ tripSchema.index({ to: '2dsphere' })
 const Trip = model("Trip", tripSchema);
 
 module.exports = Trip;
-
-
-
-// origin: {
-//     address: String,
-//         location: {
-//         type: {
-//             type: String,
-//                 },
-//         coordinates: [Number],
-//             required: [true, 'Origin is required']
-//     }
