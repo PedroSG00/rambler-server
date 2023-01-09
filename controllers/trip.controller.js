@@ -179,13 +179,14 @@ const deleteTrip = async (req, res, next) => {
     const { _id: user_id } = req.payload
 
     try {
+
         const deletedTrip = await Trip.findByIdAndDelete(id)
-        const deletedChat = await Chat.findByIdAndDelete(deleteTrip.chat._id)
-        const userUpdated = await User.findByIdAndUpdate(user_id, { $pull: { chats: deleteTrip.chat._id } })
+        const deletedChat = await Chat.findByIdAndDelete(deletedTrip.chat._id)
+        const userUpdated = await User.findByIdAndUpdate(user_id, { $pull: { chats: deletedTrip.chat._id } })
+        const passengersUpdated = await User.findByIdAndUpdate(deletedChat.users, { $pull: { chats: deletedTrip.chat._id } })
 
 
-
-        return res.status(200).json(deleteTrip)
+        return res.status(200).json(deletedTrip)
 
     } catch (error) {
         next()
